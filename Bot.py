@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, CallbackContext
+import asyncio
 
 # Define the fun responses for each button
 responses = [
@@ -29,7 +30,7 @@ async def button(update: Update, context: CallbackContext) -> None:
     await query.edit_message_text(text=response)
 
 async def main() -> None:
-    # Use your actual bot token here
+    # Replace 'YOUR_TOKEN' with your bot's API token
     application = Application.builder().token("7482303626:AAGCm4bkiYqdy935gc9CyKYM3AccCIecl4s").build()
 
     application.add_handler(CommandHandler('start', start))
@@ -38,6 +39,14 @@ async def main() -> None:
     await application.run_polling()
 
 if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
-    
+    # To handle the existing event loop issue, use `asyncio.run()`
+    try:
+        asyncio.run(main())
+    except RuntimeError as e:
+        if str(e) == 'This event loop is already running':
+            loop = asyncio.get_event_loop()
+            loop.create_task(main())
+            loop.run_forever()
+        else:
+            raise
+            
